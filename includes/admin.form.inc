@@ -46,8 +46,9 @@ function islandora_collection_search_admin_form($form, &$form_state) {
     '#type' => 'fieldset',
     'islandora_collection_search_solr_useprefix' => array(
       '#title' => t('Use info:fedora prefix?'),
-      '#description' => t('When search the Solr child and member fields should we use "info:fedora/PID" or just "PID".'),
+      '#description' => t('When searching Solr for child and member objects should we use "info:fedora/PID" or just "PID".'),
       '#type' => 'checkbox',
+      '#return_value' => TRUE,
       '#default_value' => variable_get('islandora_collection_search_solr_useprefix', TRUE),
     ),
   );
