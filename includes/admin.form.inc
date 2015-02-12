@@ -44,12 +44,10 @@ function islandora_collection_search_admin_form($form, &$form_state) {
   $form['solr'] = array(
     '#title' => t('Solr Search Settings'),
     '#type' => 'fieldset',
-    '#description' => t('Some configurable options for performing collection searches, in case your Solr index differs from the normal version'),
     'islandora_collection_search_solr_useprefix' => array(
       '#title' => t('Use info:fedora prefix?'),
-      '#description' => t('When checking for children of an object should we use "info:fedora/PID" or just "PID".'),
+      '#description' => t('When search the Solr child and member fields should we use "info:fedora/PID" or just "PID".'),
       '#type' => 'checkbox',
-      '#required' => TRUE,
       '#default_value' => variable_get('islandora_collection_search_solr_useprefix', TRUE),
     ),
   );
