@@ -125,4 +125,5 @@ function islandora_collection_search_admin_form_submit(&$form, &$form_state) {
   variable_set('islandora_collection_search_searchable_collections', $form_state['values']['collection_selection']);
   variable_set('islandora_collection_search_advanced_search_alter', $form_state['values']['advanced_search_alter']);
   variable_set('islandora_collection_search_retain_search_values', $form_state['values']['retain_values_on_search_results']);
+  variable_set('islandora_collection_search_solr_useprefix', isset($form_state['values']['islandora_collection_search_solr_useprefix']) ? TRUE : FALSE);
 }
