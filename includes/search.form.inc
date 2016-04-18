@@ -60,13 +60,17 @@ function islandora_collection_search_form($form, &$form_state) {
       if (count($collections) > 1) {
         foreach ($collections as $pid) {
           $object = islandora_object_load($pid);
-          $options[$object->id] = $object->label;
+          if (!is_null($object)) {
+            $options[$object->id] = $object->label;
+          }
         }
       }
       else {
         $pid = reset($collections);
         $object = islandora_object_load($pid);
-        $options[$object->id] = $show_label ? $object->label : t('This collection');
+        if (!is_null($object)) {
+          $options[$object->id] = $show_label ? $object->label : t('This collection');
+        }
       }
       $default_search = reset($collections);
     }
