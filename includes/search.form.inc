@@ -47,7 +47,7 @@ function islandora_collection_search_form($form, &$form_state) {
         '!pid' => $collection,
       )
     );
-    $qp->solrParams = islandora_collection_search_remove_solr_base_filters($qp->solrParams);
+    $qp->solrParams = islandora_collection_search_solr_remove_base_filters($qp->solrParams);
     $qp->executeQuery(FALSE);
     $child_object = islandora_object_load($collection);
     if (in_array("islandora:newspaperCModel", $child_object->models)) {
