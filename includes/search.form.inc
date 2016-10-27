@@ -13,6 +13,9 @@
  *
  * @param array $form_state
  *   Associative array with form state information.
+ *
+ * @return array $form
+ *   A drupal form.
  */
 function islandora_collection_search_form($form, &$form_state) {
   module_load_include('inc', 'islandora_collection_search', 'includes/utilities');
@@ -37,18 +40,23 @@ function islandora_collection_search_form($form, &$form_state) {
     // searching otherwise get its parent.
     $qp = new IslandoraSolrQueryProcessor();
     $qp->buildQuery('*:*');
-    $qp->solrParams['fq'][] = format_string('!is_memberofcollection:"info:fedora/!pid" OR !is_member:"info:fedora/!pid"',
+    $qp->solrParams['fq'][] = format_string('!is_memberofcollection:("info:fedora/!pid" OR "!pid") OR !is_memberof:("info:fedora/!pid" OR "!pid")',
       array(
         '!is_memberofcollection' => variable_get('islandora_solr_member_of_collection_field', 'RELS_EXT_isMemberOfCollection_uri_ms'),
         '!is_memberof' => variable_get('islandora_solr_member_of_field', 'RELS_EXT_isMemberOf_uri_ms'),
         '!pid' => $collection,
       )
     );
+    $qp->solrParams = islandora_collection_search_remove_solr_base_filters($qp->solrParams);
     $qp->executeQuery(FALSE);
+    $child_object = islandora_object_load($collection);
+    if (in_array("islandora:newspaperCModel", $child_object->models)) {
+      // This is a newspaper use it
+
+    }
     // If no children need to find the immediate parent to search for instead.
     if (!$qp->islandoraSolrResult['response']['numFound']) {
       module_load_include('inc', 'islandora_basic_collection', 'includes/utilities');
-      $child_object = islandora_object_load($collection);
       $parents = islandora_basic_collection_get_parent_pids($child_object);
       $collections = drupal_map_assoc($parents);
     }
