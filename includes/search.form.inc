@@ -33,46 +33,29 @@ function islandora_collection_search_form($form, &$form_state) {
   );
   $default_search = 'all';
   if ($collection) {
-    // See if the current object has children, and if so make it available for
-    // searching otherwise get its parent.
-    $qp = new IslandoraSolrQueryProcessor();
-    $qp->buildQuery('*:*');
-    $qp->solrParams['fq'][] = format_string('!is_memberofcollection:"info:fedora/!pid" OR !is_member:"info:fedora/!pid"',
-      array(
-        '!is_memberofcollection' => variable_get('islandora_solr_member_of_collection_field', 'RELS_EXT_isMemberOfCollection_uri_ms'),
-        '!is_memberof' => variable_get('islandora_solr_member_of_field', 'RELS_EXT_isMemberOf_uri_ms'),
-        '!pid' => $collection,
-      )
-    );
-    $qp->executeQuery(FALSE);
-    // If no children need to find the immediate parent to search for instead.
-    if (!$qp->islandoraSolrResult['response']['numFound']) {
-      module_load_include('inc', 'islandora_basic_collection', 'includes/utilities');
-      $child_object = islandora_object_load($collection);
-      $parents = islandora_basic_collection_get_parent_pids($child_object);
-      $collections = drupal_map_assoc($parents);
-    }
+    module_load_include('inc', 'islandora_basic_collection', 'includes/utilities');
+    $parents = islandora_basic_collection_get_parents($collection);
     $show_label = variable_get('islandora_collection_search_display_label', FALSE);
-    if (!empty($collections)) {
-      // If there are more than one possible parents we can't differentiate for
-      // the "This collection" case, resort to using the labels.
-      if (count($collections) > 1) {
-        foreach ($collections as $pid) {
+    if (!empty($parents)) {
+      $p_count = array_count_values($parents);
+      $too_many_fn = function($o) { return ($o > 1); };
+      if (count(array_filter($p_count, $too_many_fn)) > 0) {
+        // If there are more than one possible parents with the same label
+        // we can't differentiate for the "This X" case, resort to using
+        // the labels.
+        $show_label = TRUE;
+      }
+      foreach ($parents as $pid => $label) {
+        if (!is_numeric($label) && !$show_label) {
+          $options[$pid] = t($label);
+        }
+        else {
           $object = islandora_object_load($pid);
           $options[$object->id] = $object->label;
         }
       }
-      else {
-        $pid = reset($collections);
-        $object = islandora_object_load($pid);
-        $options[$object->id] = $show_label ? $object->label : t('This collection');
-      }
-      $default_search = reset($collections);
-    }
-    else {
-      $collection_object = islandora_object_load($collection);
-      $options[$collection_object->id] = $show_label ? $collection_object->label : t('This collection');
-      $default_search = $collection_object->id;
+      // Default to last element.
+      $default_search = array_keys($options)[count($options)-1];
     }
   }
   $options = islandora_collection_search_retrieve_searchable_collections($options, $collection);
