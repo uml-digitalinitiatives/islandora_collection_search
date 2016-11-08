@@ -33,8 +33,7 @@ function islandora_collection_search_form($form, &$form_state) {
   );
   $default_search = 'all';
   if ($collection) {
-    module_load_include('inc', 'islandora_basic_collection', 'includes/utilities');
-    $parents = islandora_basic_collection_get_parents($collection);
+    $parents = islandora_collection_search_get_parents($collection);
     $show_label = variable_get('islandora_collection_search_display_label', FALSE);
     if (!empty($parents)) {
       $p_count = array_count_values($parents);
